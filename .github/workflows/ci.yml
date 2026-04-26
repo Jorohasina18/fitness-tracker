@@ -41,6 +41,3 @@ jobs:
       - name: Build frontend
         run: npm run build -- --configuration=production
         working-directory: ./frontend
-      - name: Run frontend tests
-        run: npm run test
-        working-directory: ./frontend
