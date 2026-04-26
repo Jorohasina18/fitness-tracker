@@ -1,0 +1,296 @@
+<div class="workouts-container">
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- LIVE WORKOUT OVERLAY                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="liveMode && liveWorkout" class="live-workout-overlay">
+    <div class="live-card">
+
+      <!-- Header -->
+      <div class="live-header">
+        <div class="live-title">
+          <span class="live-badge">⚡ SÉANCE EN COURS</span>
+          <h2>{{ liveWorkout.type }}</h2>
+        </div>
+        <div class="live-progress-counter">
+          <span>{{ activeExerciseIndex + 1 }} / {{ totalExercises }}</span>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="live-progress-bar-wrap">
+        <div class="live-progress-fill"
+             [style.width.%]="((activeExerciseIndex + 1) / totalExercises) * 100">
+        </div>
+      </div>
+
+      <!-- Exercise Steps -->
+      <div class="exercise-steps">
+        <div *ngFor="let ex of liveWorkout.exercises; let i = index"
+             class="step-dot"
+             [class.done]="exerciseDone[i]"
+             [class.active]="i === activeExerciseIndex">
+        </div>
+      </div>
+
+      <!-- Current Exercise Card (Only if not completed yet) -->
+      <div class="current-exercise-card" *ngIf="currentExercise && liveWorkout.status !== 'completed'">
+        <div class="ex-number">Exercice {{ activeExerciseIndex + 1 }}</div>
+        <h1 class="ex-name">{{ currentExercise.name }}</h1>
+
+        <div class="ex-stats-row">
+          <div class="ex-stat">
+            <span class="stat-lbl">Séries</span>
+            <span class="stat-val">{{ currentExercise.sets }}</span>
+          </div>
+          <div class="ex-stat">
+            <span class="stat-lbl">Reps</span>
+            <span class="stat-val">{{ currentExercise.reps }}</span>
+          </div>
+          <div class="ex-stat" *ngIf="currentExercise.weight && currentExercise.weight > 0">
+            <span class="stat-lbl">Poids</span>
+            <span class="stat-val">{{ currentExercise.weight }} {{ currentExercise.unit || 'kg' }}</span>
+          </div>
+          <div class="ex-stat" *ngIf="currentExercise.unit && currentExercise.unit !== 'kg'">
+            <span class="stat-lbl">Unité</span>
+            <span class="stat-val">{{ currentExercise.unit }}</span>
+          </div>
+        </div>
+
+        <!-- Motivation tip -->
+        <div class="ex-tip" *ngIf="activeExerciseIndex === 0">🔥 Échauffez-vous d'abord ! Commencez à 60% de votre effort max.</div>
+        <div class="ex-tip" *ngIf="isLastExercise">🏆 Dernier exercice ! Donnez tout ce que vous avez !</div>
+      </div>
+
+      <!-- Success Card (When fully completed) -->
+      <div class="finished-success-card" *ngIf="liveWorkout.status === 'completed'">
+        <div class="success-icon" style="font-size: 4rem; text-align: center; margin-bottom: 20px;">🏆</div>
+        <h1 style="text-align: center; color: white;">Séance Terminée !</h1>
+        <p style="text-align: center; color: rgba(255,255,255,0.8); margin-bottom: 30px;">
+          Excellente session ! Vos efforts paient et votre jauge d'objectif a progressé. Prêt pour la suite ?
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+          <button class="btn btn-primary" style="padding: 15px; font-size: 1.1rem; background: var(--primary); border: none; border-radius: 12px; color: white; cursor: pointer;" (click)="generateAISession(true)">
+            Générer la Séance Suivante
+          </button>
+          <button class="btn btn-secondary" style="padding: 15px; font-size: 1rem; background: rgba(255,255,255,0.1); border: none; border-radius: 12px; color: white; cursor: pointer;" (click)="closeLiveWorkout()">
+            ← Revenir au tableau
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons (Only if not completed) -->
+      <div class="live-nav-buttons" *ngIf="liveWorkout.status !== 'completed'">
+        <button class="btn-live-prev" (click)="prevExercise()" [disabled]="activeExerciseIndex === 0">
+          ← Précédent
+        </button>
+
+        <!-- NEXT button (not last exercise) -->
+        <button *ngIf="!isLastExercise" class="btn-live-next" (click)="nextExercise()">
+          Exercice Suivant →
+        </button>
+
+        <!-- FINISH button (last exercise) -->
+        <div *ngIf="isLastExercise" class="finish-group">
+          <p class="finish-label">Comment était la séance ?</p>
+          <div class="finish-btns">
+            <button class="btn-finish easy" (click)="finishLiveWorkout('easy')">😄 Facile</button>
+            <button class="btn-finish medium" (click)="finishLiveWorkout('medium')">💪 Moyen</button>
+            <button class="btn-finish hard" (click)="finishLiveWorkout('hard')">🔥 Difficile</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cancel -->
+      <button class="btn-cancel-live" *ngIf="liveWorkout.status !== 'completed'" (click)="cancelLiveWorkout()">Annuler la séance</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- NORMAL VIEW                                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="workouts-content" *ngIf="!liveMode">
+    <div class="header">
+      <h1>Mes Entraînements</h1>
+      <div class="header-actions">
+        <button class="btn btn-ia" (click)="generateAISession()" [disabled]="loading">
+          Générer une Séance
+        </button>
+        <button class="btn btn-primary" (click)="toggleForm()">
+          {{ showForm ? 'Annuler' : '+ Ajouter' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Add Workout Form -->
+    <div *ngIf="showForm" class="form-section">
+      <h2>Nouvel entraînement</h2>
+      <form [formGroup]="workoutForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input type="date" id="date" formControlName="date" class="form-control"
+                 [class.is-invalid]="submitted && f['date'].errors" />
+        </div>
+
+        <div class="form-group">
+          <label for="type">Type d'entraînement</label>
+          <select id="type" formControlName="type" class="form-control"
+                  [class.is-invalid]="submitted && f['type'].errors">
+            <option value="">Sélectionner un type</option>
+            <option value="Force">Force</option>
+            <option value="Cardio">Cardio</option>
+            <option value="Yoga">Yoga</option>
+            <option value="Flexibilité">Flexibilité</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="targetMuscle">Zone ciblée</label>
+            <select id="targetMuscle" formControlName="targetMuscle" class="form-control">
+              <option value="">Sélectionner une zone</option>
+              <option value="Full Body">Corps complet</option>
+              <option value="Arms">Bras</option>
+              <option value="Legs">Jambes</option>
+              <option value="Back">Dos</option>
+              <option value="Chest">Pectoraux</option>
+              <option value="Abs">Abdominaux</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="intensity">Intensité</label>
+            <select id="intensity" formControlName="intensity" class="form-control">
+              <option value="Low">Faible</option>
+              <option value="Moderate">Modérée</option>
+              <option value="High">Élevée</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="suggestions.length > 0" class="suggestions-section">
+          <h3>💡 Suggestions pour votre objectif</h3>
+          <div class="suggestions-grid">
+            <div *ngFor="let suggest of suggestions" class="suggestion-chip" (click)="addExercise(suggest)">
+              <span>{{ suggest.name }}</span>
+              <small>{{ suggest.sets }}x{{ suggest.reps }}{{ suggest.unit || '' }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notes</label>
+          <textarea id="notes" formControlName="notes" class="form-control" rows="2"
+                    placeholder="Ajouter des notes sur votre entraînement..."></textarea>
+        </div>
+
+        <div class="exercises-form-section" formArrayName="exercises">
+          <div class="section-header">
+            <h3>Exercices suggérés</h3>
+          </div>
+          <div *ngFor="let exercise of exercises.controls; let i = index"
+               [formGroupName]="i" class="exercise-form-row">
+            <div class="form-row-header">
+              <h4>Exercice #{{ i + 1 }}</h4>
+              <button type="button" class="btn btn-icon btn-danger" (click)="removeExercise(i)" title="Supprimer">
+                &times;
+              </button>
+            </div>
+            <div class="row">
+              <div class="col">
+                <label>Nom</label>
+                <input type="text" formControlName="name" class="form-control" placeholder="Ex: Squat">
+              </div>
+              <div class="col-sm">
+                <label>Séries</label>
+                <input type="number" formControlName="sets" class="form-control" placeholder="0">
+              </div>
+              <div class="col-sm">
+                <label>Reps</label>
+                <input type="number" formControlName="reps" class="form-control" placeholder="0">
+              </div>
+              <div class="col-sm">
+                <label>Poids (kg)</label>
+                <input type="number" formControlName="weight" class="form-control" placeholder="0">
+              </div>
+            </div>
+          </div>
+          <div *ngIf="exercises.length === 0" class="no-exercises-tip">
+            <p>Les exercices sont générés automatiquement.</p>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block" [disabled]="loading">
+            {{ loading ? 'Enregistrement...' : 'Enregistrer l\'entraînement' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="loading && !showForm" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des entraînements...</p>
+    </div>
+
+    <!-- Workouts List (Limited view to prevent excessive scrolling) -->
+    <div *ngIf="!loading" class="workouts-list">
+      <div *ngIf="workouts.length > 0">
+        <!-- We show all workouts now and use CSS for scrolling -->
+        <div *ngFor="let workout of workouts" class="workout-card">
+          <div class="workout-header">
+            <div class="title-group">
+              <span class="workout-type-icon">{{ getWorkoutIcon(workout.type) }}</span>
+              <h3>{{ workout.type }}</h3>
+            </div>
+            <span class="date">{{ workout.date | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="workout-body">
+            <div *ngIf="workout.exercises.length > 0" class="exercises-list">
+              <div *ngFor="let ex of workout.exercises; let i = index" class="exercise-item">
+                <span class="ex-num">{{ i + 1 }}</span>
+                <span class="ex-name">{{ ex.name }}</span>
+                <span class="ex-details">{{ ex.sets }} séries × {{ ex.reps }} reps
+                  <span *ngIf="ex.weight && ex.weight > 0"> &#64; {{ ex.weight }}{{ ex.unit || 'kg' }}</span>
+                </span>
+              </div>
+            </div>
+            <p *ngIf="workout.exercises.length === 0" class="no-data">Aucun exercice enregistré</p>
+            <p *ngIf="workout.notes" class="workout-notes">
+              <i class="notes-icon">📝</i> {{ workout.notes }}
+            </p>
+          </div>
+
+          <div class="workout-footer">
+            <!-- NOT COMPLETED: show "Commencer" + difficulty actions -->
+            <ng-container *ngIf="workout.status !== 'completed'">
+              <button class="btn-start-live" (click)="startLiveWorkout(workout)"
+                      [disabled]="workout.exercises.length === 0">
+                ▶️ Commencer la Séance
+              </button>
+              <div class="completion-actions">
+                <span class="label">Ou marquer directement :</span>
+                <div class="btn-group">
+                  <button class="btn btn-success btn-sm" (click)="markAsCompleted(workout, 'easy')">Facile</button>
+                  <button class="btn btn-warning btn-sm" (click)="markAsCompleted(workout, 'medium')">Moyen</button>
+                  <button class="btn btn-danger btn-sm" (click)="markAsCompleted(workout, 'hard')">Difficile</button>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- COMPLETED: show status badge -->
+            <div *ngIf="workout.status === 'completed'" class="completed-badge-row">
+              <span class="status-badge completed">✅ Terminé ({{ workout.difficulty || 'Moyen' }})</span>
+              <button class="btn-delete-link" (click)="deleteWorkout(workout._id)">Supprimer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="workouts.length === 0" class="empty-state">
+        <div class="empty-icon">🏋️‍♂️</div>
+        <p>Aucun entraînement enregistré</p>
+        <button class="btn btn-primary" (click)="generateAISession()">Générer ma première séance</button>
+      </div>
+    </div>
+  </div>
+</div>

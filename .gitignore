@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.angular/
+coverage/
+*.log
+docker-data/
+mongodb_data/

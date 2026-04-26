@@ -1,0 +1,26 @@
+<div class="glass-dashboard" [class.dark-mode]="isDarkMode">
+  <!-- Dynamic Background overlay based on theme -->
+  <div class="dashboard-overlay"></div>
+
+  <!-- ── PERSISTENT SIDEBAR ── -->
+  <aside class="glass-sidebar">
+    <div class="nav-icons top-icons">
+      <div class="icon-btn logo">💪</div>
+      <div class="icon-btn" [class.active]="isActive('/dashboard')" (click)="navigateTo('/dashboard')" title="Tableau de bord">📊</div>
+      <div class="icon-btn" [class.active]="isActive('/workouts')" (click)="navigateTo('/workouts')" title="Entraînements">🏋️</div>
+      <div class="icon-btn" [class.active]="isActive('/nutrition')" (click)="navigateTo('/nutrition')" title="Nutrition">🥗</div>
+      <div class="icon-btn" [class.active]="isActive('/goals')" (click)="navigateTo('/goals')" title="Objectifs">🎯</div>
+      <div class="icon-btn" [class.active]="isActive('/settings')" (click)="navigateTo('/settings')" title="Paramètres">⚙️</div>
+    </div>
+    <div class="nav-icons bottom-icons">
+      <div class="theme-toggle" (click)="toggleTheme()">
+        <span class="icon-sun" [class.active]="!isDarkMode">☀️</span>
+        <span class="icon-moon" [class.active]="isDarkMode">🌙</span>
+      </div>
+      <div class="icon-btn logout" (click)="logout()" title="Déconnexion">🚪</div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT AREA (CHANGES PER ROUTE) ── -->
+  <router-outlet></router-outlet>
+</div>

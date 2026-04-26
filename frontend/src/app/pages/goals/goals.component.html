@@ -1,0 +1,171 @@
+<div class="goals-container">
+  <div class="goals-content">
+    <div class="header">
+      <h1>Mes Objectifs</h1>
+      <button class="btn btn-primary" (click)="showForm = !showForm">
+        {{ showForm ? 'Annuler' : '+ Créer un objectif' }}
+      </button>
+    </div>
+
+    <div *ngIf="showForm" class="form-section">
+      <h2>Nouvel objectif</h2>
+      <form [formGroup]="goalForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Nom de l'objectif</label>
+            <input
+              type="text"
+              id="name"
+              formControlName="name"
+              class="form-control"
+              [class.is-invalid]="submitted && f['name'].errors"
+              placeholder="Ex: Perdre 5kg"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="unit">Unité</label>
+            <input
+              type="text"
+              id="unit"
+              formControlName="unit"
+              class="form-control"
+              [class.is-invalid]="submitted && f['unit'].errors"
+              placeholder="Ex: kg, km, minutes"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startValue">Valeur de départ</label>
+            <input type="number" id="startValue" formControlName="startValue" class="form-control" [class.is-invalid]="submitted && f['startValue'].errors">
+            <div *ngIf="submitted && f['startValue'].errors" class="invalid-feedback">
+              La valeur de départ est requise.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="targetValue">Valeur cible</label>
+            <input
+              type="number"
+              id="targetValue"
+              formControlName="targetValue"
+              class="form-control"
+              [class.is-invalid]="submitted && f['targetValue'].errors"
+              placeholder="0"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="currentValue">Valeur actuelle</label>
+            <input
+              type="number"
+              id="currentValue"
+              formControlName="currentValue"
+              class="form-control"
+              [class.is-invalid]="submitted && f['currentValue'].errors"
+              placeholder="0"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Date de début</label>
+            <input
+              type="date"
+              id="startDate"
+              formControlName="startDate"
+              class="form-control"
+              [class.is-invalid]="submitted && f['startDate'].errors"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="endDate">Date de fin</label>
+            <input
+              type="date"
+              id="endDate"
+              formControlName="endDate"
+              class="form-control"
+              [class.is-invalid]="submitted && f['endDate'].errors"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col">
+            <label for="duration">Durée (jours)</label>
+            <input type="number" id="duration" formControlName="duration" class="form-control">
+          </div>
+          <div class="form-group col">
+            <label for="frequency">Fréquence (séance/semaine)</label>
+            <input type="number" id="frequency" formControlName="frequency" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col">
+            <label for="category">Catégorie</label>
+            <select id="category" formControlName="category" class="form-control">
+              <option value="weight_loss">Perte de poids</option>
+              <option value="muscle_gain">Prise de masse</option>
+              <option value="endurance">Endurance</option>
+              <option value="toning">Renforcement</option>
+              <option value="health">Santé générale</option>
+            </select>
+          </div>
+        </div>
+        <small class="text-muted">Cela influencera vos suggestions d'exercices et de nutrition.</small>
+
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          {{ loading ? 'Création...' : 'Créer l\'objectif' }}
+        </button>
+      </form>
+    </div>
+
+    <div *ngIf="loading && !showForm" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des objectifs...</p>
+    </div>
+
+    <div *ngIf="!loading" class="goals-list">
+      <div *ngIf="goals.length > 0">
+        <div *ngFor="let goal of goals" class="goal-card">
+          <div class="goal-header">
+            <h3>{{ goal.name }}</h3>
+            <span class="status" [class.completed]="goal.status === 'completed'">
+              {{ goal.status }}
+            </span>
+          </div>
+          <div class="goal-body">
+            <div class="goal-info">
+              <p><strong>Progrès:</strong> {{ goal.currentValue | number:'1.0-1' }} / {{ goal.targetValue | number:'1.0-1' }} {{ goal.unit }}</p>
+              <p><strong>Période:</strong> {{ goal.startDate | date: 'dd/MM/yyyy' }} - {{ goal.endDate | date: 'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="progress-section">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getProgressPercentage(goal)"></div>
+              </div>
+              <div class="progress-details">
+                <span class="numerical">{{ goal.currentValue | number:'1.0-1' }} / {{ goal.targetValue | number:'1.0-1' }} {{ goal.unit }}</span>
+                <span class="percentage">{{ getProgressPercentage(goal) | number: '1.0-0' }}%</span>
+              </div>
+              <p class="goal-message" style="font-size: 13px; color: #ff6b35; margin-top: 5px; font-style: italic; font-weight: 600;">
+                {{ getGoalMessage(goal) }}
+              </p>
+            </div>
+          </div>
+          <div class="goal-footer">
+            <button class="btn btn-danger" (click)="deleteGoal(goal._id)">Supprimer</button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="goals.length === 0" class="empty-state">
+        <p>Aucun objectif défini</p>
+        <button class="btn btn-primary" (click)="showForm = true">Créer votre premier objectif</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,234 @@
+<div class="landing-wrapper">
+
+  <!-- ── NAVBAR ── -->
+  <nav class="hero-nav">
+    <div class="nav-brand">
+      <span class="brand-name">HOME</span>
+    </div>
+    <ul class="nav-links">
+      <li><a (click)="scrollTo('hero'); $event.preventDefault()" href="javascript:void(0)" class="nav-link">About</a></li>
+      <li><a (click)="scrollTo('programs'); $event.preventDefault()" href="javascript:void(0)" class="nav-link">Programs</a></li>
+      <li><a (click)="scrollTo('schedule'); $event.preventDefault()" href="javascript:void(0)" class="nav-link">Schedule</a></li>
+      <li><a (click)="scrollTo('stories'); $event.preventDefault()" href="javascript:void(0)" class="nav-link">Stories</a></li>
+      <li><a (click)="scrollTo('blog'); $event.preventDefault()" href="javascript:void(0)" class="nav-link">Blog</a></li>
+      <li><a (click)="scrollTo('login-section'); $event.preventDefault()" href="javascript:void(0)" class="nav-link">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── SECTION 1: HERO ── -->
+  <section id="hero" class="hero-section">
+    <div class="hero-bg-overlay"></div>
+
+    <div class="container hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          TRANSFORM<br>
+          <span class="accent">YOUR BODY</span><br>
+          ACHIEVE YOUR GOALS
+        </h1>
+
+        <button class="btn-primary-large" (click)="scrollToLogin()">
+          GET STARTED
+        </button>
+        <p class="hero-eyebrow mt-3">UNLEASH YOUR FULL POTENTIAL</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: PROGRAMS ── -->
+  <section id="programs" class="programs-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>OUR <span class="accent">PROGRAMS</span></h2>
+        <p class="subtitle">CHOOSE YOUR WORKOUT</p>
+      </div>
+
+      <div class="programs-grid">
+        <!-- Program 1 -->
+        <div class="program-card clickable" (click)="scrollTo('login-section')">
+          <div class="card-img-wrapper">
+            <img src="assets/prog-strength.png" alt="Strength Training"
+              onerror="this.src='https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&q=80'">
+          </div>
+          <div class="card-content border-top-accent">
+            <h3>STRENGTH TRAINING</h3>
+            <p>Build Muscle & Power</p>
+          </div>
+        </div>
+
+        <!-- Program 2 -->
+        <div class="program-card highlight clickable" (click)="scrollTo('login-section')">
+          <div class="card-img-wrapper">
+            <img src="assets/prog-hiit.png" alt="HIIT & Cardio"
+              onerror="this.src='https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500&q=80'">
+          </div>
+          <div class="card-content bg-accent">
+            <h3>HIIT & CARDIO</h3>
+            <p>Burn Fat & Boost Endurance</p>
+          </div>
+        </div>
+
+        <!-- Program 3 -->
+        <div class="program-card clickable" (click)="scrollTo('login-section')">
+          <div class="card-img-wrapper">
+            <img src="assets/prog-yoga.png" alt="Yoga & Flexibility"
+              onerror="this.src='https://images.unsplash.com/photo-1599901860904-17e08c2d15fb?w=500&q=80'">
+          </div>
+          <div class="card-content border-top-accent">
+            <h3>YOGA & FLEXIBILITY</h3>
+            <p>Improve Balance & Flexibility</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: SUCCESS STORIES ── -->
+  <section id="stories" class="stories-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>SUCCESS <span class="accent">STORIES</span></h2>
+        <p class="subtitle">REAL RESULTS FROM OUR MEMBERS</p>
+      </div>
+
+      <div class="stories-grid">
+        <!-- Story 1 -->
+        <div class="story-card">
+          <img src="assets/avatar-sarah.png" alt="Sarah M." class="story-avatar"
+            onerror="this.src='https://i.pravatar.cc/150?img=5'">
+          <div class="story-content">
+            <p class="quote">"I lost 20 lbs and gained muscle. Best decision ever!"</p>
+            <div class="story-author">
+              <div>
+                <h4>SARAH M.</h4>
+                <p>Lost 20 lbs</p>
+              </div>
+              <div class="story-icon">🏅</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Story 2 -->
+        <div class="story-card">
+          <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&q=80" alt="Jason R."
+            class="story-avatar" onerror="this.src='https://i.pravatar.cc/150?img=11'">
+          <div class="story-content">
+            <p class="quote">"Transformed my body in just 3 months!"</p>
+            <div class="story-author">
+              <div>
+                <h4>JASON R.</h4>
+                <p>Gained 15 lbs of Muscle</p>
+              </div>
+              <div class="story-icon accent-icon">⏩</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: CLASS SCHEDULE ── -->
+  <section id="schedule" class="schedule-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>CLASS <span class="accent">SCHEDULE</span></h2>
+        <p class="subtitle">FIND YOUR PERFECT CLASS</p>
+      </div>
+
+      <div class="schedule-table-wrapper">
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>9:00 AM</th>
+              <th>MONDAY</th>
+              <th>Friday</th>
+              <th>Moday</th>
+              <th>Snednedas</th>
+              <th>Thursdil</th>
+              <th>Friday</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>9:00 AM</td>
+              <td class="bg-dark">HIT</td>
+              <td class="bg-dark">Yoga</td>
+              <td class="bg-dark">Strength</td>
+              <td class="bg-dark">Yass</td>
+              <td class="bg-dark">Yoga</td>
+              <td class="bg-dark"></td>
+            </tr>
+            <tr>
+              <td>2:00 PM</td>
+              <td class="bg-dark">HIT</td>
+              <td class="bg-dark">Yoga</td>
+              <td class="bg-dark">Cardio</td>
+              <td class="bg-dark">Cardio</td>
+              <td class="bg-dark">Spin Class</td>
+              <td class="bg-dark"></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="bg-accent text-white">Pilates</td>
+              <td class="bg-dark"></td>
+              <td class="bg-accent text-white">Pilates</td>
+              <td class="bg-dark">Pilates</td>
+              <td class="bg-dark"></td>
+              <td class="bg-dark"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4">
+        <button class="btn-primary" (click)="scrollTo('login-section')">VIEW FULL SCHEDULE</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: JOIN & LOGIN (Target for Scroll) ── -->
+  <section id="login-section" class="join-section">
+    <div class="join-bg"></div>
+    <div class="container join-container">
+
+      <div class="join-header">
+        <h2>JOIN US TODAY</h2>
+        <p>START YOUR FITNESS JOURNEY</p>
+      </div>
+
+      <div class="join-actions">
+        <!-- Display Login Form here -->
+        <div class="login-card">
+          <h3>MEMBER LOGIN</h3>
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+              <div class="form-group w-50">
+                <input type="text" formControlName="username" class="form-control"
+                  [class.is-invalid]="submitted && f['username'].errors" placeholder="Username" />
+              </div>
+              <div class="form-group w-50">
+                <input type="password" formControlName="password" class="form-control"
+                  [class.is-invalid]="submitted && f['password'].errors" placeholder="Password" />
+              </div>
+            </div>
+
+            <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+            <div class="action-buttons">
+              <button type="submit" class="btn-primary w-50" [disabled]="loading">
+                <span *ngIf="loading" class="spinner"></span>
+                <span *ngIf="!loading">LOG IN</span>
+              </button>
+              <a routerLink="/register" class="btn-secondary w-50">SIGN UP</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer-info">
+        <p>CALL US: (123) 456-7890 &nbsp;|&nbsp; VISIT US: 123 FITNESS ST, YOUR CITY</p>
+      </div>
+    </div>
+  </section>
+
+</div>

@@ -1,0 +1,251 @@
+<main class="main-glass-panel">
+  <!-- IA Coach Alert -->
+  <div *ngIf="coachStatus" class="coach-ai-banner glass-card" [class]="coachStatus.state.toLowerCase()">
+    <div class="coach-icon">{{ coachStatus.icon }}</div>
+    <div class="coach-body">
+      <h3>Coach</h3>
+      <p>{{ coachStatus.message }}</p>
+    </div>
+    <div class="coach-action">
+      <button class="btn btn-primary" (click)="onCoachAction()">{{ coachStatus.action }}</button>
+    </div>
+  </div>
+
+  <!-- Smart Sync Alert -->
+  <div *ngIf="smartSummary" class="smart-sync-banner glass-card" [class]="activeGoal?.category">
+    <div class="sync-icon"></div>
+    <div class="sync-content">
+      <h3>Synchronisation Intelligente</h3>
+      <p><strong>Objectif:</strong> {{ activeGoal?.name }}</p>
+      <p class="tip">{{ smartSummary.tip }}</p>
+      <div *ngIf="smartSummary.message" class="sync-message">{{ smartSummary.message }}</div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="welcome-text">
+      <h1>Good Morning, {{ currentUser?.firstName || currentUser?.username || 'Lionel' }}</h1>
+      <p>Let's do some workout today</p>
+    </div>
+    <div class="search-bar">
+      <div class="search-input-wrapper">
+        <input type="text" placeholder="Search something here..." class="glass-input" 
+               (input)="onSearch($event)" (blur)="closeSearch()" [(ngModel)]="searchQuery">
+        
+        <div class="search-dropdown glass-card" *ngIf="showSearchResults">
+          <div *ngFor="let res of searchResults" class="search-result-item" (click)="navigateTo(res.url)">
+            <span class="res-icon">{{ res.icon }}</span>
+            <div class="res-info">
+              <div class="res-type">{{ res.type }}</div>
+              <div class="res-name">{{ res.name }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span class="bell-icon">🔔</span>
+    </div>
+  </header>
+
+  <!-- TOP STATS -->
+  <div class="stats-row">
+    <div class="glass-card stat-card">
+      <div class="card-header"><span>Calories</span><div class="icon-bg bg-orange">🔥</div></div>
+      <h2>{{ dailyMacros.totalCalories | number:'1.0-0' }} <span class="unit">Kcal</span></h2>
+    </div>
+
+    <div class="glass-card stat-card">
+      <div class="card-header"><span>Séances</span><div class="icon-bg bg-pink">💓</div></div>
+      <h2>{{ recentWorkouts.length }} <span class="unit">sessions</span></h2>
+    </div>
+
+    <div class="glass-card stat-card">
+      <div class="card-header"><span>Objectifs</span><div class="icon-bg bg-green">🏃</div></div>
+      <h2>{{ goals.length }} <span class="unit">actifs</span></h2>
+    </div>
+
+    <div class="glass-card stat-card">
+      <div class="card-header"><span>Prochain</span><div class="icon-bg bg-blue">🌙</div></div>
+      <h2 class="date-val">{{ nextSessionDate ? (nextSessionDate | date: 'dd/MM') : 'TBD' }}</h2>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Center Column -->
+    <div class="glass-card activity-tracking">
+      <div class="card-header">
+        <h3>Activity Tracking</h3>
+        <select class="glass-select"><option>Weekly</option></select>
+      </div>
+      
+      <div class="activity-content">
+        <div class="workout-col swipe-container">
+          <div *ngIf="activeWorkout; else emptyWorkouts" class="workout-list">
+            <h4 class="workout-title">{{ activeWorkout.type }} Session</h4>
+            <div *ngFor="let ex of activeWorkout.exercises" class="workout-item perf-tracking">
+              <div class="icon-container">{{ getWorkoutIcon(activeWorkout.type) }}</div>
+              <div class="workout-details">
+                <div class="ex-name">{{ ex.name }}</div>
+                <div class="ex-inputs">
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="ex.sets" (change)="updateExercisePerf(ex)">
+                    <span>Sets</span>
+                  </div>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="ex.reps" (change)="updateExercisePerf(ex)">
+                    <span>Reps</span>
+                  </div>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="ex.weight" (change)="updateExercisePerf(ex)">
+                    <span>kg</span>
+                  </div>
+                  <div class="input-group rpe">
+                    <input type="number" [(ngModel)]="ex.rpe" min="1" max="10" (change)="updateExercisePerf(ex)">
+                    <span>RPE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-save mt-3" (click)="saveActiveWorkout()">Valider ma séance</button>
+            <div class="tonnage-badge">Tonnage Total: {{ totalVolume }} kg</div>
+          </div>
+          <ng-template #emptyWorkouts>
+            <div class="empty-state"><p>Aucun entraînement trouvé.</p></div>
+          </ng-template>
+        </div>
+
+        <div class="hero-activity">
+          <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&q=80" alt="Athlete">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-column">
+      <div class="glass-card user-profile-card">
+        <div class="profile-header-mini">
+           <div class="user-info">
+            <div class="avatar-wrapper clickable" (click)="photoInput.click()">
+              <input type="file" #photoInput style="display: none" (change)="onPhotoSelected($event)" accept="image/*">
+              <img *ngIf="userProfile.photo; else initialAvatar" [src]="userProfile.photo" alt="Avatar">
+              <ng-template #initialAvatar>
+                <div class="avatar-fallback">{{ getInitials() }}</div>
+              </ng-template>
+              <div class="camera-overlay">📷</div>
+            </div>
+            <div>
+              <h4>{{ userProfile?.firstName }} {{ userProfile?.lastName }}</h4>
+              <p>&#64;{{ currentUser?.username || 'member' }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="profile-quick-stats">
+          <div><span class="val">{{ userProfile?.currentWeight || '--' }}</span><span class="lbl">Weight</span></div>
+          <div><span class="val">{{ userProfile?.height || '--' }}</span><span class="lbl">Height</span></div>
+          <div><span class="val">{{ userProfile?.age || '--' }}</span><span class="lbl">Age</span></div>
+        </div>
+      </div>
+
+      <div class="calendar-scheduler glass-card">
+        <div class="calendar-header"><h4>{{ today | date:'MMMM yyyy' }}</h4></div>
+        <div class="calendar-fake-grid">
+          <div class="day th">Su</div><div class="day th">Mo</div><div class="day th">Tu</div><div class="day th">We</div><div class="day th">Th</div><div class="day th">Fr</div><div class="day th">Sa</div>
+          <ng-container *ngFor="let day of calendarDays">
+            <div *ngIf="day.type === 'empty'" class="day th"></div>
+            <div *ngIf="day.type === 'day'" class="day" [class.is-today]="day.isToday" [class.active-selected]="selectedDate === day.dayNumber" [class]="day.statusClass" (click)="onDayClick(day)">
+              {{ day.dayNumber }}
+            </div>
+          </ng-container>
+        </div>
+        <div class="scheduled-list">
+           <div class="sched-head"><h4>Scheduled</h4><button class="btn btn-outline" (click)="toggleProgressModal()">Voir progrès</button></div>
+           <div *ngIf="goals.length > 0; else emptyGoals">
+             <div *ngFor="let goal of goals" class="glass-task-item" (click)="navigateTo('/goals')">
+               <div class="task-icon"><img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=100&q=80"></div>
+               <div class="task-info"><h5>{{ goal.name }}</h5><p>{{ getGoalProgress(goal) }}% terminé</p></div>
+             </div>
+           </div>
+           <ng-template #emptyGoals><p class="empty-txt">Aucun objectif actif</p></ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diet Plan -->
+  <div class="glass-card diet-plan-card">
+    <div class="card-header"><h3>Diet Plan</h3><span class="view-all clickable" (click)="navigateTo('/nutrition')">view all</span></div>
+    <div class="diet-cards">
+      <div class="diet-mini-card orange">
+        <div class="diet-txt"><h4>Protéines</h4><p>Reconstruction des muscles.</p></div>
+        <div class="diet-stats"><div class="macro-value">{{ dailyMacros.totalProtein }}g</div><img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=100&q=80"></div>
+      </div>
+      <div class="diet-mini-card green">
+        <div class="diet-txt"><h4>Glucides</h4><p>Énergie rapide pour vos séances.</p></div>
+        <div class="diet-stats"><div class="macro-value">{{ dailyMacros.totalCarbs }}g</div><img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=100&q=80"></div>
+      </div>
+      <div class="diet-mini-card white">
+        <div class="diet-txt"><h4>Lipides</h4><p>Santé hormonale.</p></div>
+        <div class="diet-stats"><div class="macro-value">{{ dailyMacros.totalFat }}g</div><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=80"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ── PROGRESS MODAL (Overlay) ── -->
+<div class="glass-modal-overlay" *ngIf="showProgressModal" (click)="toggleProgressModal()">
+    <div class="glass-modal-content progress-tracking-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Tableau de Bord de Progression</h2>
+        <button class="close-btn" (click)="toggleProgressModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="progress-section">
+          <h4>Évolution du Volume Total (kg)</h4>
+          <div class="volume-chart">
+            <div *ngFor="let entry of volumeHistory" class="chart-bar-wrapper">
+              <div class="chart-bar" [style.height.%]="entry.height">
+                <span class="bar-val">{{ entry.volume }}kg</span>
+              </div>
+              <span class="bar-label">{{ entry.date }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-section side-by-side">
+          <div class="photo-compare">
+            <h4>Comparaison Visuelle</h4>
+            <div class="photo-grid">
+              <div class="photo-card"><span class="photo-label">Avant</span><img [src]="beforePhoto"></div>
+              <div class="photo-card"><span class="photo-label">Maintenant</span><img [src]="afterPhoto"></div>
+            </div>
+          </div>
+
+          <div class="metrics-summary">
+            <h4>Indicateurs Clés</h4>
+            <div class="metric-row">
+              <span class="m-lbl">Assiduité</span>
+              <div class="m-bar"><div class="m-fill" style="width: 85%"></div></div>
+              <span class="m-val">85%</span>
+            </div>
+            <div class="metric-row">
+              <span class="m-lbl">Force (1RM Est.)</span>
+              <div class="m-bar"><div class="m-fill orange" style="width: 70%"></div></div>
+              <span class="m-val">+15%</span>
+            </div>
+            <div class="metric-row">
+              <span class="m-lbl">Régularité (Pas)</span>
+              <div class="m-bar"><div class="m-fill green" style="width: 92%"></div></div>
+              <span class="m-val">9.5k avg</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-footer">
+          <p>“Cette semaine, tu as soulevé {{ totalVolume }} kg. Continue comme ça !”</p>
+        </div>
+      </div>
+    </div>
+</div>

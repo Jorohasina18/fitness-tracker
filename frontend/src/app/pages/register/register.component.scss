@@ -1,0 +1,153 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #050505;
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
+}
+
+.register-card {
+  background: #111111;
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid #222;
+  width: 100%;
+  max-width: 400px;
+  animation: slideIn 0.5s ease-out;
+
+  h1 {
+    text-align: center;
+    color: #f3f4f6;
+    margin-bottom: 10px;
+    font-size: 32px;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #a3a3a3;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    color: #a3a3a3;
+    font-weight: 500;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: white;
+    border-radius: 4px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+
+    &:focus {
+      outline: none;
+      border-color: #ff4500;
+    }
+
+    &.is-invalid {
+      border-color: #ef4444;
+    }
+  }
+
+  .invalid-feedback {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+}
+
+.alert {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+
+  &.alert-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid #ef4444;
+  }
+
+  &.alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid #10b981;
+  }
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+
+  &.btn-primary {
+    background: #ff4500;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #ff5722;
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      background: #333;
+      color: #888;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #a3a3a3;
+  font-size: 14px;
+
+  a {
+    color: #ff4500;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

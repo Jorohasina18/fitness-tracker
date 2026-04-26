@@ -1,0 +1,133 @@
+<main class="main-glass-panel">
+  <header class="dashboard-header">
+    <div class="welcome-text">
+      <h1 class="page-title">Paramètres & Profil</h1>
+      <p>Gérez vos informations personnelles et vos préférences d'application</p>
+    </div>
+  </header>
+
+  <div class="settings-container">
+    <div class="settings-sidebar glass-card">
+      <ul>
+        <li [class.active]="activeTab === 'profile'" (click)="setTab('profile')">👤 Profil & Compte</li>
+        <li [class.active]="activeTab === 'display'" (click)="setTab('display')">🎨 Personnalisation</li>
+      </ul>
+    </div>
+
+    <div class="settings-content glass-card">
+      <div *ngIf="successMessage" class="sync-message success">{{ successMessage }}</div>
+
+      <!-- PROFILE SETTINGS -->
+      <div *ngIf="activeTab === 'profile'" class="tab-pane">
+        <h2>Informations du compte</h2>
+        
+        <div class="avatar-section">
+          <div class="avatar-preview">
+            <img *ngIf="userProfile.photo; else textAvatar" [src]="userProfile.photo" alt="Avatar">
+            <ng-template #textAvatar>
+              <div class="avatar-fallback">{{ getInitials() }}</div>
+            </ng-template>
+          </div>
+          <div class="avatar-actions">
+             <label class="btn btn-outline" for="avatar-upload">Changer la photo</label>
+             <input type="file" id="avatar-upload" (change)="handleImageUpload($event)" accept="image/*" style="display: none;">
+             <p class="hint">Recommandé : image carrée (JPEG, PNG).</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Prénom</label>
+            <input type="text" [(ngModel)]="userProfile.firstName" class="glass-input">
+          </div>
+          <div class="form-group">
+            <label>Nom</label>
+            <input type="text" [(ngModel)]="userProfile.lastName" class="glass-input">
+          </div>
+          <div class="form-group wide">
+            <label>Adresse E-mail</label>
+            <input type="email" [(ngModel)]="userProfile.email" disabled class="glass-input disabled">
+          </div>
+          
+          <div class="form-group">
+            <label>Genre</label>
+            <select [(ngModel)]="userProfile.gender" class="glass-input">
+              <option value="male">Homme</option>
+              <option value="female">Femme</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Âge</label>
+            <input type="number" [(ngModel)]="userProfile.age" class="glass-input">
+          </div>
+
+          <div class="form-group">
+            <label>Taille (cm)</label>
+            <input type="number" [(ngModel)]="userProfile.height" class="glass-input">
+          </div>
+          <div class="form-group">
+            <label>Poids Actuel (kg)</label>
+            <input type="number" [(ngModel)]="userProfile.currentWeight" class="glass-input">
+          </div>
+          
+          <div class="form-group wide">
+            <label>Abonnement</label>
+            <div class="subscription-box">
+              <span class="sub-badge">PRO</span>
+              <p>Votre abonnement Premium est actif.</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary mt-20" (click)="saveProfile()">Sauvegarder les modifications</button>
+      </div>
+
+      <!-- DISPLAY / PERSONNALISATION -->
+      <div *ngIf="activeTab === 'display'" class="tab-pane">
+        <h2>Apparence & Unités</h2>
+        
+        <div class="form-group wide">
+          <label>Thème de l'application</label>
+          <div class="theme-cards">
+            <div class="theme-card" [class.active]="!isDarkMode" (click)="isDarkMode = false">
+              <div class="preview light"></div>
+              <span>Clair</span>
+            </div>
+            <div class="theme-card" [class.active]="isDarkMode" (click)="isDarkMode = true">
+               <div class="preview dark"></div>
+               <span>Sombre</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid mt-20">
+          <div class="form-group">
+            <label>Unité de poids</label>
+            <select [(ngModel)]="weightUnit" class="glass-input">
+              <option value="kg">Kilogrammes (kg)</option>
+              <option value="lbs">Livres (lbs)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Unité de distance</label>
+            <select [(ngModel)]="distanceUnit" class="glass-input">
+              <option value="km">Kilomètres (km)</option>
+              <option value="mi">Miles (mi)</option>
+            </select>
+          </div>
+          
+          <div class="form-group wide">
+             <label>Langue</label>
+             <select class="glass-input">
+                <option>Français</option>
+                <option>English</option>
+             </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary mt-20" (click)="savePreferences()">Appliquer les préférences</button>
+      </div>
+
+    </div>
+  </div>
+</main>

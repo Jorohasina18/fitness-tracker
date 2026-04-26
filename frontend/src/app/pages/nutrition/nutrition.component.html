@@ -1,0 +1,206 @@
+<div class="nutrition-container">
+  <div class="nutrition-content">
+    <div class="header">
+      <h1>Suivi Nutrition</h1>
+      <div class="header-actions">
+        <button class="btn btn-ia" (click)="generateAIPlan()" [disabled]="loading || !mealPlan">
+          Générer Menu du Jour
+        </button>
+        <button class="btn btn-primary" (click)="showForm = !showForm">
+          {{ showForm ? 'Annuler' : '+ Ajouter un repas' }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="guidance" class="guidance-banner" [class]="activeGoals[0] ? activeGoals[0].category : ''">
+      <div class="guidance-icon">💡</div>
+      <div class="guidance-content">
+        <h3>Conseil du Coach</h3>
+        <p>{{ guidance.tip }}</p>
+        <div *ngIf="guidance.message" class="guidance-sub">{{ guidance.message }}</div>
+        
+        <div *ngIf="mealPlan" class="meal-plan-grid">
+          <div class="plan-item" *ngIf="mealPlan.breakfast">
+            <span class="type">🥣 P-Déj</span>
+            <span class="meal-name">{{ mealPlan.breakfast.name }}</span>
+            <span class="macros-mini">{{ mealPlan.breakfast.calories }} kcal | Prot: {{ mealPlan.breakfast.protein }}g</span>
+          </div>
+          <div class="plan-item" *ngIf="mealPlan.lunch">
+            <span class="type">🥗 Déj</span>
+            <span class="meal-name">{{ mealPlan.lunch.name }}</span>
+            <span class="macros-mini">{{ mealPlan.lunch.calories }} kcal | Prot: {{ mealPlan.lunch.protein }}g</span>
+          </div>
+          <div class="plan-item" *ngIf="mealPlan.snack">
+            <span class="type">🍎 Snack</span>
+            <span class="meal-name">{{ mealPlan.snack.name }}</span>
+            <span class="macros-mini">{{ mealPlan.snack.calories }} kcal | Prot: {{ mealPlan.snack.protein }}g</span>
+          </div>
+          <div class="plan-item" *ngIf="mealPlan.dinner">
+            <span class="type">🍽️ Dîner</span>
+            <span class="meal-name">{{ mealPlan.dinner.name }}</span>
+            <span class="macros-mini">{{ mealPlan.dinner.calories }} kcal | Prot: {{ mealPlan.dinner.protein }}g</span>
+          </div>
+        </div>
+        
+        <div *ngIf="mealPlan" class="plan-actions">
+           <button class="btn-ia-action" (click)="generateAIPlan()" [disabled]="loading">
+             Enregistrer ce menu pour aujourd'hui
+           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Macros Summary -->
+    <div *ngIf="dailyMacros" class="macros-summary">
+      <div class="macro-card">
+        <h3>Calories</h3>
+        <p class="value">{{ dailyMacros.totalCalories | number: '1.0-0' }}</p>
+        <p class="unit">kcal</p>
+      </div>
+      <div class="macro-card">
+        <h3>Protéines</h3>
+        <p class="value">{{ dailyMacros.totalProtein | number: '1.0-1' }}</p>
+        <p class="unit">g</p>
+      </div>
+      <div class="macro-card">
+        <h3>Glucides</h3>
+        <p class="value">{{ dailyMacros.totalCarbs | number: '1.0-1' }}</p>
+        <p class="unit">g</p>
+      </div>
+      <div class="macro-card">
+        <h3>Lipides</h3>
+        <p class="value">{{ dailyMacros.totalFat | number: '1.0-1' }}</p>
+        <p class="unit">g</p>
+      </div>
+    </div>
+
+    <div *ngIf="showForm" class="form-section">
+      <h2>Ajouter un repas</h2>
+      <form [formGroup]="mealForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input
+            type="date"
+            id="date"
+            formControlName="date"
+            class="form-control"
+            [class.is-invalid]="submitted && f['date'].errors"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="type">Type de repas</label>
+          <select
+            id="type"
+            formControlName="type"
+            class="form-control"
+            [class.is-invalid]="submitted && f['type'].errors"
+          >
+            <option value="">Sélectionner un type</option>
+            <option value="Petit-déjeuner">Petit-déjeuner</option>
+            <option value="Déjeuner">Déjeuner</option>
+            <option value="Dîner">Dîner</option>
+            <option value="Snack">Snack</option>
+          </select>
+        </div>
+
+        <div class="food-items-form-section" formArrayName="foodItems">
+          <div class="section-header">
+            <h3>Aliments</h3>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="addFoodItem()">
+              + Ajouter un aliment
+            </button>
+          </div>
+
+          <div *ngFor="let item of foodItems.controls; let i = index" [formGroupName]="i" class="food-form-row">
+            <div class="form-row-header">
+              <h4>Aliment #{{ i + 1 }}</h4>
+              <button type="button" class="btn btn-icon btn-danger" (click)="removeFoodItem(i)" title="Supprimer">
+                &times;
+              </button>
+            </div>
+            
+            <div class="row">
+              <div class="col">
+                <label>Nom</label>
+                <input type="text" formControlName="name" class="form-control" placeholder="Ex: Poulet">
+              </div>
+              <div class="col-sm">
+                <label>Cal</label>
+                <input type="number" formControlName="calories" class="form-control" placeholder="0">
+              </div>
+              <div class="col-sm">
+                <label>Prot (g)</label>
+                <input type="number" formControlName="protein" class="form-control" placeholder="0">
+              </div>
+              <div class="col-sm">
+                <label>Glu (g)</label>
+                <input type="number" formControlName="carbs" class="form-control" placeholder="0">
+              </div>
+              <div class="col-sm">
+                <label>Lip (g)</label>
+                <input type="number" formControlName="fat" class="form-control" placeholder="0">
+              </div>
+              <div class="col-sm">
+                <label>Qté</label>
+                <input type="number" formControlName="quantity" class="form-control" placeholder="1">
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="foodItems.length === 0" class="no-items-tip">
+            <p>Ajoutez des aliments pour suivre vos apports.</p>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block" [disabled]="loading">
+            {{ loading ? 'Enregistrement...' : 'Enregistrer le repas' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="loading && !showForm" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des repas...</p>
+    </div>
+
+    <div *ngIf="!loading" class="meals-list">
+      <div *ngIf="meals.length > 0">
+        <div *ngFor="let meal of meals" class="meal-card">
+          <div class="meal-header">
+            <div class="title-group">
+              <span class="meal-type-icon">{{ getMealIcon(meal.type) }}</span>
+              <h3>{{ meal.type }}</h3>
+            </div>
+            <span class="date">{{ meal.date | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="meal-body">
+            <div *ngIf="meal.foodItems.length > 0" class="food-list">
+              <div *ngFor="let item of meal.foodItems" class="food-item">
+                <div class="food-main">
+                  <span class="food-name">{{ item.name }}</span>
+                  <span class="food-qty">x{{ item.quantity }}</span>
+                </div>
+                <div class="food-macros">
+                  <span>{{ item.calories * item.quantity | number:'1.0-0' }} kcal</span>
+                  <span class="macro-detail">P: {{ item.protein * item.quantity | number:'1.0-1' }}g | G: {{ item.carbs * item.quantity | number:'1.0-1' }}g | L: {{ item.fat * item.quantity | number:'1.0-1' }}g</span>
+                </div>
+              </div>
+            </div>
+            <p *ngIf="meal.foodItems.length === 0" class="no-data">Aucun aliment enregistré</p>
+          </div>
+          <div class="meal-footer">
+            <button class="btn btn-outline-danger btn-sm" (click)="deleteMeal(meal._id)">Supprimer</button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="meals.length === 0" class="empty-state">
+        <div class="empty-icon">🍽️</div>
+        <p>Aucun repas enregistré</p>
+        <button class="btn btn-primary" (click)="showForm = true">Ajouter votre premier repas</button>
+      </div>
+    </div>
+  </div>
+</div>
